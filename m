@@ -432,9 +432,8 @@ function Library:create(options)
 		getgenv().MercuryUI = nil
 	end
 
-
-
-	if options.Link:sub(-1, -1) == "" then
+	-- Ensure the URL does not end with a slash
+	if options.Link:sub(-1) == "\\" then
 		options.Link = options.Link:sub(1, -2)
 	end
 
@@ -568,6 +567,7 @@ function Library:create(options)
 		closeButton:tween{ImageColor3 = Library.CurrentTheme.StrongText}
 	end)
 
+	-- Ensure the close button logic is updated
 	local function closeUI()
 		core.ClipsDescendants = true
 		core:fade(true)
@@ -720,17 +720,9 @@ function Library:create(options)
 
 		end)
 
+		-- Ensure the home button uses the new function
 		homeButton.MouseButton1Click:Connect(function()
-			for _, tabInfo in next, tabs do
-				local page = tabInfo[1]
-				local button = tabInfo[2]
-				page.Visible = false
-			end
-			selectedTab:tween{BackgroundTransparency = ((selectedTab == homeButton) and 0.15) or 1}
-			selectedTab = homeButton
-			homePage.Visible = true
-			homeButton.BackgroundTransparency = 0
-			Library.UrlLabel.Text = Library.Url .. "/home"
+			selectTab(homeButton, homePage, "home")
 		end)
 	end
 
@@ -967,7 +959,6 @@ function Library:notification(options)
 		Image = "rbxassetid://6014261993",
 		ImageColor3 = Color3.fromRGB(0,0,0),
 		ImageTransparency = 1,
-		ScaleType = Enum.ScaleType.Slice,
 		SliceCenter = Rect.new(49, 49, 450, 450)
 	})
 
@@ -1115,15 +1106,16 @@ function Library:tab(options)
 		PaddingTop = UDim.new(0, 10)
 	})
 
+	-- Example usage in the tab creation logic
 	local tabButton = Library:object("TextButton", {
 		BackgroundTransparency = 1,
-		Parent = self.nilFolder.AbsoluteObject,
+		Parent = Library.nilFolder.AbsoluteObject,
 		Theme = {BackgroundColor3 = "Secondary"},
 		Size = UDim2.new(0, 125, 0, 25),
 		Visible = false
 	}):round(5)
 
-	self.Tabs[#self.Tabs+1] = {tab, tabButton, options.Name}
+	Library.Tabs[#Library.Tabs+1] = {tab, tabButton, options.Name}
 
 	do
 		local down = false
@@ -1152,44 +1144,20 @@ function Library:tab(options)
 
 		end)
 
+		-- Update the tab selection logic to use the new function
 		tabButton.MouseButton1Click:Connect(function()
-			for _, tabInfo in next, self.Tabs do
-				local page = tabInfo[1]
-				local button = tabInfo[2]
-				page.Visible = false
-			end
-			selectedTab:tween{BackgroundTransparency = ((selectedTab == tabButton) and 0.15) or 1}
-			selectedTab = tabButton
-			tab.Visible = true
-			tabButton.BackgroundTransparency = 0
-			Library.UrlLabel.Text = Library.Url .. "/" .. options.Name:lower()
+			selectTab(tabButton, tab, options.Name)
 		end)
 
-		quickAccessButton.MouseEnter:connect(function()
-			quickAccessButton:tween{BackgroundColor3 = Library.CurrentTheme.Tertiary}
-		end)
-
-		quickAccessButton.MouseLeave:connect(function()
-			quickAccessButton:tween{BackgroundColor3 = Library.CurrentTheme.Secondary}
-		end)
-
+		-- Update the quick access button logic to use the new function
 		quickAccessButton.MouseButton1Click:connect(function()
 			if not tabButton.Visible then
-				tabButton.Parent = self.navigation.AbsoluteObject
+				tabButton.Parent = Library.navigation.AbsoluteObject
 				tabButton.Size = UDim2.new(0, 50, tabButton.Size.Y.Scale, tabButton.Size.Y.Offset)
 				tabButton.Visible = true
-				tabButton:fade(false, Library.CurrentTheme.Main, 0.1)			
+				tabButton:fade(false, Library.CurrentTheme.Main, 0.1)
 				tabButton:tween({Size = UDim2.new(0, 125, tabButton.Size.Y.Scale, tabButton.Size.Y.Offset), Length = 0.1})
-				for _, tabInfo in next, self.Tabs do
-					local page = tabInfo[1]
-					local button = tabInfo[2]
-					page.Visible = false
-				end
-				selectedTab:tween{BackgroundTransparency = ((selectedTab == tabButton) and 0.15) or 1}
-				selectedTab = tabButton
-				tab.Visible = true
-				tabButton.BackgroundTransparency = 0
-				Library.UrlLabel.Text = Library.Url .. "/" .. options.Name:lower()
+				selectTab(tabButton, tab, options.Name)
 			end
 		end)
 	end
@@ -1494,7 +1462,7 @@ function Library:dropdown(options)
 	local items = setmetatable({}, {
 		__newindex = function(self, i, v)
 			rawset(self, i, v)
-			if v ~= nil then
+			if v != nil then
 				newSize = (25 * #self) + 5
 				itemContainer.Size = UDim2.new(1, -10, 0, newSize)
 			end
@@ -3452,7 +3420,7 @@ function Library:textbox(options)
 		Position = UDim2.new(1, -13, 0.5, 0),
 		Size = UDim2.new(0, 16, 0, 16),
 		Theme = {ImageColor3 = "StrongText"}
-	})
+	}) 
 
 
 
@@ -3557,6 +3525,25 @@ function Library:label(options)
 	end
 
 	return methods
+end
+
+-- Update the URL label when a tab is selected
+local function updateUrlLabel(tabName)
+	Library.UrlLabel.Text = (Library.Url .. "\\" .. tabName:lower()):gsub("/", "\\")
+end
+
+-- Update the tab selection logic to use the new function
+local function selectTab(tabButton, tabPage, tabName)
+	for _, tabInfo in next, Library.Tabs do
+		local page = tabInfo[1]
+		local button = tabInfo[2]
+		page.Visible = false
+	end
+	selectedTab:tween{BackgroundTransparency = ((selectedTab == tabButton) and 0.15) or 1}
+	selectedTab = tabButton
+	tabPage.Visible = true
+	tabButton.BackgroundTransparency = 0
+	updateUrlLabel(tabName)
 end
 
 return setmetatable(Library, {
