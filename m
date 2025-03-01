@@ -1,24 +1,13 @@
 --[[
 
-██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
-█░░░░░░██████████░░░░░░█░░░░░░░░░░░░░░█░░░░░░░░░░░░░░░░███░░░░░░░░░░░░░░█░░░░░░██░░░░░░█░░░░░░░░░░░░░░░░███░░░░░░░░██░░░░░░░░█
-█░░▄▀░░░░░░░░░░░░░░▄▀░░█░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀▄▀▄▀▄▀▄▀▄▀░░███░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀░░██░░▄▀░░█░░▄▀▄▀▄▀▄▀▄▀▄▀░░███░░▄▀▄▀░░██░░▄▀▄▀░░█
-█░░▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀░░█░░▄▀░░░░░░░░░░█░░▄▀░░░░░░░░▄▀░░███░░▄▀░░░░░░░░░░█░░▄▀░░██░░▄▀░░█░░▄▀░░░░░░░░▄▀░░███░░░░▄▀░░██░░▄▀░░░░█
-█░░▄▀░░░░░░▄▀░░░░░░▄▀░░█░░▄▀░░█████████░░▄▀░░████░░▄▀░░███░░▄▀░░█████████░░▄▀░░██░░▄▀░░█░░▄▀░░████░░▄▀░░█████░░▄▀▄▀░░▄▀▄▀░░███
-█░░▄▀░░██░░▄▀░░██░░▄▀░░█░░▄▀░░░░░░░░░░█░░▄▀░░░░░░░░▄▀░░███░░▄▀░░█████████░░▄▀░░██░░▄▀░░█░░▄▀░░░░░░░░▄▀░░█████░░░░▄▀▄▀▄▀░░░░███
-█░░▄▀░░██░░▄▀░░██░░▄▀░░█░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀▄▀▄▀▄▀▄▀▄▀░░███░░▄▀░░█████████░░▄▀░░██░░▄▀░░█░░▄▀▄▀▄▀▄▀▄▀▄▀░░███████░░░░▄▀░░░░█████
-█░░▄▀░░██░░░░░░██░░▄▀░░█░░▄▀░░░░░░░░░░█░░▄▀░░yue<3▀░░░░███░░▄▀░░█████████░░▄▀░░██░░▄▀░░█░░▄▀░░░░░░▄▀░░░░█████████░░▄▀░░███████
-█░░▄▀░░██████████░░▄▀░░█░░▄▀░░█████████░░▄▀░░██░░▄▀░░█████░░▄▀░░█████████░░▄▀░░██░░▄▀░░█░░▄▀░░██░░▄▀░░███████████░░▄▀░░███████
-█░░▄▀░░██████████░░▄▀░░█░░▄▀░░░░░░░░░░█░░▄▀░░██░░▄▀░░░░░░█░░▄▀░░░░░░░░░░█░░▄▀░░░░░░▄▀░░█░░▄▀░░██░░▄▀░░░░░░███████░░▄▀░░███████
-█░░▄▀░░██████████░░▄▀░░█░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀░░██░░▄▀▄▀▄▀░░█░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀▄▀▄▀▄▀▄▀░░█░░▄▀░░██░░▄▀▄▀▄▀░░███████░░▄▀░░███████
-█░░░░░░██████████░░░░░░█░░░░░░░░░░░░░░█░░░░░░██░░░░░░░░░░█░░░░░░░░░░░░░░█░░░░░░░░░░░░░░█░░░░░░██░░░░░░░░░░███████░░░░░░███████
-██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
-
 edited: 1/26
 developers:
 discord Abstract#8007
 discord Deity#0228
 
+
+doing some fixes and etc...
+so credits for me too 
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -232,7 +221,7 @@ function Library:object(class, properties)
 				self.fadeFrame:tween({BackgroundTransparency = 1, Length = length}, function()
 					self.fadeFrame.Visible = false
 				end)
-			end
+			end	
 		end	
 	end
 
@@ -874,11 +863,11 @@ function Library:create(options)
 		nilFolder = core:object("Folder"),
 	}, Library)
 
-	local settingsTab = Library.tab(mt, {
+	local settingsTab = Library:tab{
 		Name = "Settings",
 		Internal = settingsTabIcon,
 		Icon = "rbxassetid://8559790237"
-	})
+	}
 
 	settingsTab:_theme_selector()
 
@@ -887,8 +876,10 @@ function Library:create(options)
 		Description = "Key to show/hide the UI.",
 		Keybind = Enum.KeyCode.B,
 		Callback = function()
-			self.Toggled = not self.Toggled
-			Library:show(self.Toggled)
+			if not game:GetService("UserInputService"):GetFocusedTextBox() then
+				self.Toggled = not self.Toggled
+				Library:show(self.Toggled)
+			end
 		end,
 	}
 
@@ -907,7 +898,7 @@ function Library:create(options)
 		Max = 20,
 		Default = 14,
 		Callback = function(value)
-			Library.DragSpeed = (20 - value)/100
+			Library.DragSpeed = (20 - value) / 100
 		end,
 	}
 
@@ -1143,7 +1134,6 @@ function Library:tab(options)
 
 		UserInputService.InputEnded:connect(function(key)
 			if key.UserInputType == Enum.UserInputType.MouseButton1 then
-				down = false
 				tabButton:tween{BackgroundTransparency = ((selectedTab == tabButton) and 0.15) or (hovered and 0.3) or 1}
 			end
 
@@ -1427,7 +1417,7 @@ function Library:dropdown(options)
 	local text = dropdownContainer:object("TextLabel", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(10, (options.Description and 5) or 15),
-		Size = UDim2.new(0.5, -10, 0, 22),
+		Size = (options.Description and UDim2.new(0.5, -10, 0, 22)) or UDim2.new(0.5, -10, 1, 0),
 		Text = options.Name,
 		TextSize = 22,
 		Theme = {TextColor3 = "StrongText"},
@@ -2801,35 +2791,35 @@ function Library:credit(options)
 			}):round(5):tooltip("copy discord")
 			local discord = discordContainer:object("Frame", {
 				Size = UDim2.new(1, -6, 1, -6),
-				Centered = true,
-				BackgroundTransparency = 1
-			})
+				BackgroundTransparency = 1entered = true,
+			})			})
 
-			local tr = discord:object("ImageLabel", {
+			local tr = discord:object("ImageLabel", {mageLabel", {
 				BackgroundTransparency = 1,
 				AnchorPoint = Vector2.new(1, 0),
 				Size = UDim2.new(0.5, 0, 0.5, 0),
 				Position = UDim2.new(1, 0, 0, -0),
 				ImageColor3 = Color3.fromRGB(255, 255, 255),
-				Image = "http://www.roblox.com/asset/?id=8594150191",
-				ScaleType = Enum.ScaleType.Crop
-			})
+				Image = "http://www.roblox.com/asset/?id=8594150191",asset/?id=8594150191",
+				ScaleType = Enum.ScaleType.CropcaleType = Enum.ScaleType.Crop
+			})			})
 
-			local tl = discord:object("ImageLabel", {
+			local tl = discord:object("ImageLabel", {mageLabel", {
 				BackgroundTransparency = 1,
 				AnchorPoint = Vector2.new(0, 0),
 				Size = UDim2.new(0.5, 0, 0.5, 0),
 				Position = UDim2.new(0, 0, 0, -0),
 				ImageColor3 = Color3.fromRGB(255, 255, 255),
-				Image = "http://www.roblox.com/asset/?id=8594187532",
-				ScaleType = Enum.ScaleType.Crop
-			})
+				Image = "http://www.roblox.com/asset/?id=8594187532",asset/?id=8594187532",
+			})				ScaleType = Enum.ScaleType.CropcaleType = Enum.ScaleType.Crop
 
 			local bl = discord:object("ImageLabel", {
+				BackgroundTransparency = 1,abel", {
 				BackgroundTransparency = 1,
 				AnchorPoint = Vector2.new(0, 1),
 				Size = UDim2.new(0.5, 0, 0.5, 0),
 				Position = UDim2.new(0, 0, 1, 0),
+				ImageColor3 = Color3.fromRGB(255, 255, 255),
 				ImageColor3 = Color3.fromRGB(255, 255, 255),
 				Image = "http://www.roblox.com/asset/?id=8594194954",
 				ScaleType = Enum.ScaleType.Crop
