@@ -871,14 +871,28 @@ function Library:create(options)
 
 	settingsTab:_theme_selector()
 
+	local UserInputService = game:GetService("UserInputService")
+
+	-- Connect the InputBegan event once
+	UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+		if gameProcessedEvent then return end
+	
+		if input.KeyCode == Enum.KeyCode.B then
+			local focusedTextBox = UserInputService:GetFocusedTextBox()
+			if not focusedTextBox or focusedTextBox.Name ~= "ChatBar" then
+				Library.Toggled = not Library.Toggled
+				Library:show(Library.Toggled)
+			end
+		end
+	end)
+	
 	settingsTab:keybind{
 		Name = "Toggle Key",
 		Description = "Key to show/hide the UI.",
 		Keybind = Enum.KeyCode.B,
 		Callback = function()
-			self.Toggled = not self.Toggled
-			Library:show(self.Toggled)
-		end,
+			-- No need to connect the event here
+		end
 	}
 	
 	settingsTab:toggle{
