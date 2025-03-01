@@ -433,7 +433,7 @@ function Library:create(options)
 	end
 
 	-- Ensure the URL does not end with a slash
-	if options.Link:sub(-1) == "\\" then
+	if options.Link:sub(-1) == "/" then
 		options.Link = options.Link:sub(1, -2)
 	end
 
