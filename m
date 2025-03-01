@@ -876,8 +876,6 @@ function Library:create(options)
 		Description = "Key to show/hide the UI.",
 		Keybind = Enum.KeyCode.B,
 		Callback = function()
-		game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
-			if gameProcessedEvent then return end
 			self.Toggled = not self.Toggled
 			Library:show(self.Toggled)
 		end,
