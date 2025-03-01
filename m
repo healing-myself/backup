@@ -433,7 +433,7 @@ function Library:create(options)
 	end
 
 	-- Ensure the URL does not end with a slash
-	if options.Link:sub(-1) == "" then
+	if options.Link:sub(-1) == "\\" then
 		options.Link = options.Link:sub(1, -2)
 	end
 
@@ -1462,7 +1462,7 @@ function Library:dropdown(options)
 	local items = setmetatable({}, {
 		__newindex = function(self, i, v)
 			rawset(self, i, v)
-			if v != nil then
+			if v ~= nil then
 				newSize = (25 * #self) + 5
 				itemContainer.Size = UDim2.new(1, -10, 0, newSize)
 			end
