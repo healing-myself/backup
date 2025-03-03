@@ -403,6 +403,73 @@ function Library:set_status(txt)
 end
 
 function Library:create(options)
+    print("Library:create called") -- Debugging statement
+
+    local gui = self:object("ScreenGui", {
+        ZIndexBehavior = Enum.ZIndexBehavior.Global
+    })
+
+    local notificationHolder = gui:object("Frame", {
+        Size = UDim2.new(0, 300, 1, -60)
+    })
+
+    local _notiHolderList = notificationHolder:object("UIListLayout", {
+        VerticalAlignment = Enum.VerticalAlignment.Bottom
+    })
+
+    local core = gui:object("Frame", {
+        ClipsDescendants = true        
+    }):round(10)
+
+    core:fade(true, nil, 0.2, true)
+    core:fade(false, nil, 0.4)
+    core:tween({Size = options.Size, Length = 0.3}, function()
+        core.ClipsDescendants = false
+    end)
+
+    do
+        local S, Event = pcall(function()
+            return core.MouseEnter
+        end)
+
+        if S then
+            core.Active = true;
+
+            Event:connect(function()
+                local Input = core.InputBegan:connect(function(Key)
+                    if Key.UserInputType == Enum.UserInputType.MouseButton3 then
+                        print("MouseButton3 pressed") -- Debugging statement
+                        local ObjectPosition = Vector2.new(Mouse.X - core.AbsolutePosition.X, Mouse.Y - core.AbsolutePosition.Y)
+                        while RunService.RenderStepped:wait() and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton3) do
+                            if Library.LockDragging then
+                                local FrameX, FrameY = math.clamp(Mouse.X - ObjectPosition.X, 0, gui.AbsoluteSize.X - core.AbsoluteSize.X), math.clamp(Mouse.Y - ObjectPosition.Y, 0, gui.AbsoluteSize.Y - core.AbsoluteSize.Y)
+                                core:tween{
+                                    Position = UDim2.fromOffset(FrameX + (core.Size.X.Offset * core.AnchorPoint.X), FrameY + (core.Size.Y.Offset * core.AnchorPoint.Y)),
+                                    Length = Library.DragSpeed
+                                }
+                            else
+                                core:tween{
+                                    Position = UDim2.fromOffset(Mouse.X - ObjectPosition.X + (core.Size.X.Offset * core.AnchorPoint.X), Mouse.Y - ObjectPosition.Y + (core.Size.Y.Offset * core.AnchorPoint.Y)),
+                                    Length = Library.DragSpeed    
+                                }
+                            end    
+                        end
+                    end
+                end)
+
+                local Leave
+                Leave = core.MouseLeave:connect(function()
+                    Input:disconnect()
+                    Leave:disconnect()
+                end)
+            end)
+        end
+    end
+
+    return mt
+end
+
+function Library:create(options)
 
 	local settings = {
 		Theme = "Dark"
@@ -967,7 +1034,6 @@ function Library:notification(options)
 		Image = "rbxassetid://6014261993",
 		ImageColor3 = Color3.fromRGB(0,0,0),
 		ImageTransparency = 1,
-		ScaleType = Enum.ScaleType.Slice,
 		SliceCenter = Rect.new(49, 49, 450, 450)
 	})
 
@@ -1405,7 +1471,7 @@ function Library:toggle(options)
 		task.spawn(function() options.Callback(toggled) end)
 	end
 
-	if options.StartingState then methods:SetState(true) end
+	if options.StartingState then methods.SetState(true) end
 
 	return methods
 end
@@ -1776,91 +1842,93 @@ function Library:section(options)
 end
 
 function Library:button(options)
-	options = self:set_defaults({
-		Name = "Button",
-		Description = nil,
-		Callback = function() end
-	}, options)
+    options = self:set_defaults({
+        Name = "Button",
+        Description = nil,
+        Callback = function() end
+    }, options)
 
-	local buttonContainer = self.container:object("TextButton", {
-		Theme = {BackgroundColor3 = "Secondary"},
-		Size = UDim2.new(1, -20, 0, 52)
-	}):round(7)
+    local buttonContainer = self.container:object("TextButton", {
+        Theme = {BackgroundColor3 = "Secondary"},
+        Size = UDim2.new(1, -20, 0, 52)
+    }):round(7)
 
-	local text = buttonContainer:object("TextLabel", {
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(10, (options.Description and 5) or 0),
-		Size = (options.Description and UDim2.new(0.5, -10, 0, 22)) or UDim2.new(0.5, -10, 1, 0),
-		Text = options.Name,
-		TextSize = 22,
-		Theme = {TextColor3 = "StrongText"},
-		TextXAlignment = Enum.TextXAlignment.Left
-	})
+    local text = buttonContainer:object("TextLabel", {
+        BackgroundTransparency = 1,
+        Position = UDim2.fromOffset(10, (options.Description and 5) or 0),
+        Size = (options.Description and UDim2.new(0.5, -10, 0, 22)) or UDim2.new(0.5, -10, 1, 0),
+        Text = options.Name,
+        TextSize = 22,
+        Theme = {TextColor3 = "StrongText"},
+        TextXAlignment = Enum.TextXAlignment.Left
+    })
 
-	if options.Description then
-		local description = buttonContainer:object("TextLabel", {
-			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(10, 27),
-			Size = UDim2.new(0.5, -10, 0, 20),
-			Text = options.Description,
-			TextSize = 18,
-			Theme = {TextColor3 = "WeakText"},
-			TextXAlignment = Enum.TextXAlignment.Left
-		})
-	end
+    if options.Description then
+        local description = buttonContainer:object("TextLabel", {
+            BackgroundTransparency = 1,
+            Position = UDim2.fromOffset(10, 27),
+            Size = UDim2.new(0.5, -10, 0, 20),
+            Text = options.Description,
+            TextSize = 18,
+            Theme = {TextColor3 = "WeakText"},
+            TextXAlignment = Enum.TextXAlignment.Left
+        })
+    end
 
-	local icon = buttonContainer:object("ImageLabel", {
-		AnchorPoint = Vector2.new(1, 0.5),
-		BackgroundTransparency = 1,
-		Position = UDim2.new(1, -11, 0.5, 0),
-		Size = UDim2.fromOffset(26, 26),
-		Image = "rbxassetid://8498776661",
-		Theme = {ImageColor3 = "Tertiary"}
-	})
+    local icon = buttonContainer:object("ImageLabel", {
+        AnchorPoint = Vector2.new(1, 0.5),
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -11, 0.5, 0),
+        Size = UDim2.fromOffset(26, 26),
+        Image = "rbxassetid://8498776661",
+        Theme = {ImageColor3 = "Tertiary"}
+    })
 
-	do
-		local hovered = false
-		local down = false
+    do
+        local hovered = false
+        local down = false
 
-		buttonContainer.MouseEnter:connect(function()
-			hovered = true
-			buttonContainer:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Secondary, 10)}
-		end)
+        buttonContainer.MouseEnter:connect(function()
+            hovered = true
+            buttonContainer:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Secondary, 10)}
+        end)
 
-		buttonContainer.MouseLeave:connect(function()
-			hovered = false
-			if not down then
-				buttonContainer:tween{BackgroundColor3 = Library.CurrentTheme.Secondary}
-			end
-		end)
+        buttonContainer.MouseLeave:connect(function()
+            hovered = false
+            if not down then
+                buttonContainer:tween{BackgroundColor3 = Library.CurrentTheme.Secondary}
+            end
+        end)
 
-		buttonContainer.MouseButton3Down:connect(function()
-			buttonContainer:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Secondary, 20)}
-		end)
+        buttonContainer.MouseButton3Down:connect(function()
+            buttonContainer:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Secondary, 20)}
+        end)
 
-		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton3 then
-				buttonContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
-			end
-		end)
+        UserInputService.InputEnded:connect(function(key)
+            if key.UserInputType == Enum.UserInputType.MouseButton3 then
+                buttonContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
+            end
+        end)
 
-		buttonContainer.MouseButton3Click:connect(function()
-			options.Callback()
-		end)
-	end
-	self:_resize_tab()
+        buttonContainer.MouseButton3Click:connect(function()
+            if Library.Toggled then
+                options.Callback()
+            end
+        end)
+    end
+    self:_resize_tab()
 
-	local methods = {}
+    local methods = {}
 
-	function methods:Fire()
-		options.Callback()
-	end
+    function methods:Fire()
+        options.Callback()
+    end
 
-	function methods:SetText(txt)
-		text.Text = txt
-	end
+    function methods:SetText(txt)
+        text.Text = txt
+    end
 
-	return methods
+    return methods
 end
 
 function Library:color_picker(options)
@@ -2773,7 +2841,6 @@ function Library:credit(options)
 	end
 	
 	
-
 	if setclipboard then
 	
 		if options.Github then
