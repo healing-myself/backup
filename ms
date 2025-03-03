@@ -648,7 +648,7 @@ function Library:create(options)
 		getgenv().MercuryUI = closeUI
 	end
 
-	closeButton.MouseButton3Click:connect(function()
+	closeButton.MouseButton3Down:connect(function()
 		closeUI()
 	end)
 
