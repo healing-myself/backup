@@ -403,73 +403,6 @@ function Library:set_status(txt)
 end
 
 function Library:create(options)
-    print("Library:create called") -- Debugging statement
-
-    local gui = self:object("ScreenGui", {
-        ZIndexBehavior = Enum.ZIndexBehavior.Global
-    })
-
-    local notificationHolder = gui:object("Frame", {
-        Size = UDim2.new(0, 300, 1, -60)
-    })
-
-    local _notiHolderList = notificationHolder:object("UIListLayout", {
-        VerticalAlignment = Enum.VerticalAlignment.Bottom
-    })
-
-    local core = gui:object("Frame", {
-        ClipsDescendants = true        
-    }):round(10)
-
-    core:fade(true, nil, 0.2, true)
-    core:fade(false, nil, 0.4)
-    core:tween({Size = options.Size, Length = 0.3}, function()
-        core.ClipsDescendants = false
-    end)
-
-    do
-        local S, Event = pcall(function()
-            return core.MouseEnter
-        end)
-
-        if S then
-            core.Active = true;
-
-            Event:connect(function()
-                local Input = core.InputBegan:connect(function(Key)
-                    if Key.UserInputType == Enum.UserInputType.MouseButton3 then
-                        print("MouseButton3 pressed") -- Debugging statement
-                        local ObjectPosition = Vector2.new(Mouse.X - core.AbsolutePosition.X, Mouse.Y - core.AbsolutePosition.Y)
-                        while RunService.RenderStepped:wait() and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton3) do
-                            if Library.LockDragging then
-                                local FrameX, FrameY = math.clamp(Mouse.X - ObjectPosition.X, 0, gui.AbsoluteSize.X - core.AbsoluteSize.X), math.clamp(Mouse.Y - ObjectPosition.Y, 0, gui.AbsoluteSize.Y - core.AbsoluteSize.Y)
-                                core:tween{
-                                    Position = UDim2.fromOffset(FrameX + (core.Size.X.Offset * core.AnchorPoint.X), FrameY + (core.Size.Y.Offset * core.AnchorPoint.Y)),
-                                    Length = Library.DragSpeed
-                                }
-                            else
-                                core:tween{
-                                    Position = UDim2.fromOffset(Mouse.X - ObjectPosition.X + (core.Size.X.Offset * core.AnchorPoint.X), Mouse.Y - ObjectPosition.Y + (core.Size.Y.Offset * core.AnchorPoint.Y)),
-                                    Length = Library.DragSpeed    
-                                }
-                            end    
-                        end
-                    end
-                end)
-
-                local Leave
-                Leave = core.MouseLeave:connect(function()
-                    Input:disconnect()
-                    Leave:disconnect()
-                end)
-            end)
-        end
-    end
-
-    return mt
-end
-
-function Library:create(options)
 
 	local settings = {
 		Theme = "Dark"
@@ -569,21 +502,6 @@ function Library:create(options)
 									Length = Library.DragSpeed	
 								}
 							end	
-							--[[core.AbsoluteObject:TweenPosition(
-								UDim2.new(0, Mouse.X - ObjectPosition.X + (core.Size.X.Offset * core.AnchorPoint.X), 0, Mouse.Y - ObjectPosition.Y + (core.Size.Y.Offset * core.AnchorPoint.Y)),           
-								Enum.EasingDirection.In,
-								Enum.EasingStyle.Sine,
-								Library.DragSpeed,
-								true
-								
-								--
-								core:tween{
-								Position = UDim2.new(0, Mouse.X - ObjectPosition.X + (core.Size.X.Offset * core.AnchorPoint.X), 0, Mouse.Y - ObjectPosition.Y + (core.Size.Y.Offset * core.AnchorPoint.Y)),
-								Direction = Enum.EasingDirection.Out,
-								Style = Enum.EasingStyle.Quad,
-								Length = Library.DragSpeed
-							}
-							)]]
 						end
 					end
 				end)
@@ -648,7 +566,7 @@ function Library:create(options)
 		getgenv().MercuryUI = closeUI
 	end
 
-	closeButton.MouseButton3Down:connect(function()
+	closeButton.MouseButton1Click:connect(function()
 		closeUI()
 	end)
 
@@ -774,20 +692,20 @@ function Library:create(options)
 			homeButton:tween{BackgroundTransparency = ((selectedTab == homeButton) and 0.15) or 1}
 		end)
 
-		homeButton.MouseButton3Down:connect(function()
+		homeButton.MouseButton1Down:connect(function()
 			down = true
 			homeButton:tween{BackgroundTransparency = 0}
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton3 then
+			if key.UserInputType == Enum.UserInputType.MouseButton1 then
 				down = false
 				homeButton:tween{BackgroundTransparency = ((selectedTab == homeButton) and 0.15) or (hovered and 0.3) or 1}
 			end
 
 		end)
 
-		homeButton.MouseButton3Click:Connect(function()
+		homeButton.MouseButton1Click:Connect(function()
 			for _, tabInfo in next, tabs do
 				local page = tabInfo[1]
 				local button = tabInfo[2]
@@ -1070,7 +988,7 @@ function Library:notification(options)
 		ImageTransparency = 1
 	})
 
-	exit.MouseButton3Click:Connect(function()
+	exit.MouseButton1Click:Connect(function()
 		fadeOut()
 	end)
 
@@ -1205,20 +1123,20 @@ function Library:tab(options)
 			tabButton:tween{BackgroundTransparency = ((selectedTab == tabButton) and 0.15) or 1}
 		end)
 
-		tabButton.MouseButton3Down:connect(function()
+		tabButton.MouseButton1Down:connect(function()
 			down = true
 			tabButton:tween{BackgroundTransparency = 0}
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton3 then
+			if key.UserInputType == Enum.UserInputType.MouseButton1 then
 				down = false
 				tabButton:tween{BackgroundTransparency = ((selectedTab == tabButton) and 0.15) or (hovered and 0.3) or 1}
 			end
 
 		end)
 
-		tabButton.MouseButton3Click:Connect(function()
+		tabButton.MouseButton1Click:Connect(function()
 			for _, tabInfo in next, self.Tabs do
 				local page = tabInfo[1]
 				local button = tabInfo[2]
@@ -1239,7 +1157,7 @@ function Library:tab(options)
 			quickAccessButton:tween{BackgroundColor3 = Library.CurrentTheme.Secondary}
 		end)
 
-		quickAccessButton.MouseButton3Click:connect(function()
+		quickAccessButton.MouseButton1Click:connect(function()
 			if not tabButton.Visible then
 				tabButton.Parent = self.navigation.AbsoluteObject
 				tabButton.Size = UDim2.new(0, 50, tabButton.Size.Y.Scale, tabButton.Size.Y.Offset)
@@ -1291,7 +1209,7 @@ function Library:tab(options)
 		Theme = {ImageColor3 = "StrongText"}
 	})
 
-	tabButtonClose.MouseButton3Click:connect(function()
+	tabButtonClose.MouseButton1Click:connect(function()
 		tabButton:fade(true, Library.CurrentTheme.Main, 0.1)
 		tabButton:tween({Size = UDim2.new(0, 50, tabButton.Size.Y.Scale, tabButton.Size.Y.Offset), Length = 0.1}, function()
 			tabButton.Visible = false
@@ -1439,17 +1357,17 @@ function Library:toggle(options)
 			end
 		end)
 
-		toggleContainer.MouseButton3Down:connect(function()
+		toggleContainer.MouseButton1Down:connect(function()
 			toggleContainer:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Secondary, 20)}
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton3 then
+			if key.UserInputType == Enum.UserInputType.MouseButton1 then
 				toggleContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
 		end)
 
-		toggleContainer.MouseButton3Click:connect(function()
+		toggleContainer.MouseButton1Click:connect(function()
 			toggle()
 		end)
 	end
@@ -1560,7 +1478,7 @@ function Library:dropdown(options)
 	local items = setmetatable({}, {
 		__newindex = function(self, i, v)
 			rawset(self, i, v)
-			if v ~= nil then
+			if v != nil then
 				newSize = (25 * #self) + 5
 				itemContainer.Size = UDim2.new(1, -10, 0, newSize)
 			end
@@ -1608,17 +1526,17 @@ function Library:dropdown(options)
 				end
 			end)
 
-			newItem.MouseButton3Down:connect(function()
+			newItem.MouseButton1Down:connect(function()
 				newItem:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Tertiary, 10)}
 			end)
 
 			UserInputService.InputEnded:connect(function(key)
-				if key.UserInputType == Enum.UserInputType.MouseButton3 then
+				if key.UserInputType == Enum.UserInputType.MouseButton1 then
 					newItem:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Tertiary, 5)) or self:lighten(Library.CurrentTheme.Secondary, 25)}
 				end
 			end)
 
-			newItem.MouseButton3Click:connect(function()
+			newItem.MouseButton1Click:connect(function()
 				toggle()
 				selectedText.Text = newItem.Text
 				selectedText:tween{Size = UDim2.fromOffset(selectedText.TextBounds.X + 20, 20), Length = 0.05}
@@ -1664,17 +1582,17 @@ function Library:dropdown(options)
 			end
 		end)
 
-		dropdownContainer.MouseButton3Down:connect(function()
+		dropdownContainer.MouseButton1Down:connect(function()
 			dropdownContainer:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Secondary, 20)}
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton3 then
+			if key.UserInputType == Enum.UserInputType.MouseButton1 then
 				dropdownContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
 		end)
 
-		dropdownContainer.MouseButton3Click:connect(function()
+		dropdownContainer.MouseButton1Click:connect(function()
 			toggle()
 		end)
 	end
@@ -1762,17 +1680,17 @@ function Library:dropdown(options)
 					end
 				end)
 
-				newItem.MouseButton3Down:connect(function()
+				newItem.MouseButton1Down:connect(function()
 					newItem:tween{BackgroundColor3 = Library:lighten(Library.CurrentTheme.Tertiary, 10)}
 				end)
 
 				UserInputService.InputEnded:connect(function(key)
-					if key.UserInputType == Enum.UserInputType.MouseButton3 then
+					if key.UserInputType == Enum.UserInputType.MouseButton1 then
 						newItem:tween{BackgroundColor3 = (hovered and Library:lighten(Library.CurrentTheme.Tertiary, 5)) or Library:lighten(Library.CurrentTheme.Secondary, 25)}
 					end
 				end)
 
-				newItem.MouseButton3Click:connect(function()
+				newItem.MouseButton1Click:connect(function()
 					toggle()
 					selectedText.Text = newItem.Text
 					selectedText:tween{Size = UDim2.fromOffset(selectedText.TextBounds.X + 20, 20), Length = 0.05}
@@ -1992,17 +1910,17 @@ function Library:color_picker(options)
 			end
 		end)
 
-		buttonContainer.MouseButton3Down:connect(function()
+		buttonContainer.MouseButton1Down:connect(function()
 			buttonContainer:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Secondary, 20)}
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton3 then
+			if key.UserInputType == Enum.UserInputType.MouseButton1 then
 				buttonContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
 		end)
 
-		buttonContainer.MouseButton3Click:connect(function()
+		buttonContainer.MouseButton1Click:connect(function()
 			if Library._colorPickerExists then return end
 			Library._colorPickerExists = true
 			local hue, sat, val;
@@ -2107,12 +2025,12 @@ function Library:color_picker(options)
 							end
 						end)
 
-						button.MouseButton3Down:connect(function()
+						button.MouseButton1Down:connect(function()
 							button:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Tertiary, 20)}
 						end)
 
 						UserInputService.InputEnded:connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton3 then
+							if key.UserInputType == Enum.UserInputType.MouseButton1 then
 								button:tween{BackgroundTransparency = (hovered and 0) or 1}
 								if hovered then
 									button:tween{BackgroundColor3 = Library.CurrentTheme.Tertiary}
@@ -2120,7 +2038,7 @@ function Library:color_picker(options)
 							end
 						end)
 
-						button.MouseButton3Click:connect(function()
+						button.MouseButton1Click:connect(function()
 							fadeOut()
 							icon:tween({ImageColor3 = selectedColor})
 							options.Callback(selectedColor)
@@ -2251,14 +2169,14 @@ function Library:color_picker(options)
 
 						local down = false
 
-						hueBar.MouseButton3Down:Connect(function()
+						hueBar.MouseButton1Down:Connect(function()
 							down = true
 							while RunService.RenderStepped:Wait() and down do
 								updateHue()
 							end
 						end)
 
-						hueDraggable.MouseButton3Down:connect(function()
+						hueDraggable.MouseButton1Down:connect(function()
 							down = true
 							while RunService.RenderStepped:Wait() and down do
 								updateHue()
@@ -2266,7 +2184,7 @@ function Library:color_picker(options)
 						end)
 
 						UserInputService.InputEnded:Connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton3 then
+							if key.UserInputType == Enum.UserInputType.MouseButton1 then
 								if down then
 									down = false
 								end
@@ -2293,7 +2211,7 @@ function Library:color_picker(options)
 							arrow:tween({ImageColor3 = selectedColor, Length = 0.05})
 						end
 
-						pickerArea.MouseButton3Down:Connect(function()
+						pickerArea.MouseButton1Down:Connect(function()
 							down = true
 							while RunService.RenderStepped:wait() and down do
 								updatePicker()
@@ -2301,7 +2219,7 @@ function Library:color_picker(options)
 						end)
 
 						UserInputService.InputEnded:Connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton3 then
+							if key.UserInputType == Enum.UserInputType.MouseButton1 then
 								if down then
 									down = false
 								end
@@ -2620,14 +2538,14 @@ function Library:color_picker(options)
 
 						local down = false
 
-						hueArea.MouseButton3Down:Connect(function()
+						hueArea.MouseButton1Down:Connect(function()
 							down = true
 							while RunService.RenderStepped:Wait() and down do
 								updateHue()
 							end
 						end)
 
-						hueDraggable.MouseButton3Down:connect(function()
+						hueDraggable.MouseButton1Down:connect(function()
 							down = true
 							while RunService.RenderStepped:Wait() and down do
 								updateHue()
@@ -2635,7 +2553,7 @@ function Library:color_picker(options)
 						end)
 
 						UserInputService.InputEnded:Connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton3 then
+							if key.UserInputType == Enum.UserInputType.MouseButton1 then
 								if down then
 									down = false
 								end
@@ -2662,7 +2580,7 @@ function Library:color_picker(options)
 							colorPickerDraggable:tween({Position = UDim2.fromOffset(newXPos, newYPos), Length = 0.05})
 						end
 
-						pickerArea.MouseButton3Down:Connect(function()
+						pickerArea.MouseButton1Down:Connect(function()
 							down = true
 							while RunService.RenderStepped:wait() and down do
 								updatePicker()
@@ -2670,7 +2588,7 @@ function Library:color_picker(options)
 						end)
 
 						UserInputService.InputEnded:Connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton3 then
+							if key.UserInputType == Enum.UserInputType.MouseButton1 then
 								if down then
 									down = false
 								end
@@ -2695,17 +2613,17 @@ function Library:color_picker(options)
 							end
 						end)
 
-						pickBtn.MouseButton3Down:connect(function()
+						pickBtn.MouseButton1Down:connect(function()
 							pickBtn:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Tertiary, 20)}
 						end)
 
 						UserInputService.InputEnded:connect(function(key)
-							if key.UserInputType == Enum.UserInputType.MouseButton3 then
+							if key.UserInputType == Enum.UserInputType.MouseButton1 then
 								pickBtn:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Tertiary)) or Library.CurrentTheme.Tertiary}
 							end
 						end)
 
-						pickBtn.MouseButton3Click:connect(function()
+						pickBtn.MouseButton1Click:connect(function()
 							fadeOut()
 							icon:tween({ImageColor3 = selectedColor})
 							options.Callback(selectedColor)
@@ -2857,7 +2775,7 @@ function Library:credit(options)
 				BackgroundTransparency = 1
 			}):round(100)
 
-			githubContainer.MouseButton3Click:connect(function()
+			githubContainer.MouseButton1Click:connect(function()
 				setclipboard(options.Github)
 			end)
 		end
@@ -2915,7 +2833,7 @@ function Library:credit(options)
 				ScaleType = Enum.ScaleType.Crop
 			})
 
-			discordContainer.MouseButton3Click:connect(function()
+			discordContainer.MouseButton1Click:connect(function()
 				setclipboard(options.Discord)
 			end)
 		end
@@ -2934,7 +2852,7 @@ function Library:credit(options)
 				BackgroundTransparency = 1
 			})
 
-			v3rmillionContainer.MouseButton3Click:connect(function()
+			v3rmillionContainer.MouseButton1Click:connect(function()
 				setclipboard(options.V3rmillion)
 			end)
 		end
@@ -3053,7 +2971,7 @@ function Library:_theme_selector()
 				BackgroundColor3 = themeColors.WeakText
 			}):round(100)
 
-			theme.MouseButton3Click:connect(function()
+			theme.MouseButton1Click:connect(function()
 				Library:change_theme(Library.Themes[themeName])
 				updateSettings("Theme", themeName)
 			end)
@@ -3130,12 +3048,12 @@ function Library:keybind(options)
 			end
 		end)
 
-		keybindContainer.MouseButton3Down:connect(function()
+		keybindContainer.MouseButton1Down:connect(function()
 			keybindContainer:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Secondary, 20)}
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton3 then
+			if key.UserInputType == Enum.UserInputType.MouseButton1 then
 				keybindContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
 		end)
@@ -3157,7 +3075,7 @@ function Library:keybind(options)
 			end
 		end)
 
-		keybindContainer.MouseButton3Click:connect(function()
+		keybindContainer.MouseButton1Click:connect(function()
 			if not listening then listening = true; keybindDisplay.Text = "..." end
 		end)
 	end
@@ -3299,17 +3217,17 @@ function Library:prompt(options)
 				end
 			end)
 
-			button.MouseButton3Down:connect(function()
+			button.MouseButton1Down:connect(function()
 				button:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Tertiary, 20)}
 			end)
 
 			UserInputService.InputEnded:connect(function(key)
-				if key.UserInputType == Enum.UserInputType.MouseButton3 then
+				if key.UserInputType == Enum.UserInputType.MouseButton1 then
 					button:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Tertiary)) or Library.CurrentTheme.Tertiary}
 				end
 			end)
 
-			button.MouseButton3Click:connect(function()
+			button.MouseButton1Click:connect(function()
 				promptContainer:tween({BackgroundTransparency = 1, Length = 0.1})
 				promptTitle:tween({TextTransparency = 1, Length = 0.1})
 				_promptContainerStroke:tween({Transparency = 1, Length = 0.1})
@@ -3426,13 +3344,13 @@ function Library:slider(options)
 		end)
 
 		UserInputService.InputEnded:connect(function(key)
-			if key.UserInputType == Enum.UserInputType.MouseButton3 then
+			if key.UserInputType == Enum.UserInputType.MouseButton1 then
 				down = false
 				sliderContainer:tween{BackgroundColor3 = (hovered and self:lighten(Library.CurrentTheme.Secondary)) or Library.CurrentTheme.Secondary}
 			end
 		end)
 
-		sliderContainer.MouseButton3Down:connect(function()
+		sliderContainer.MouseButton1Down:connect(function()
 			sliderContainer:tween{BackgroundColor3 = self:lighten(Library.CurrentTheme.Secondary, 20)}
 			down = true
 			local tween = valueText:tween{Size = UDim2.fromOffset(valueText.TextBounds.X + 20, 20)}
@@ -3519,7 +3437,7 @@ function Library:textbox(options)
 		Position = UDim2.new(1, -13, 0.5, 0),
 		Size = UDim2.new(0, 16, 0, 16),
 		Theme = {ImageColor3 = "StrongText"}
-	})
+	}) 
 
 
 
